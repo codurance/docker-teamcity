@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+DATABASE_PROPERTIES=~/.BuildServer/config/database.properties
+
+mkdir -p $(dirname $DATABASE_PROPERTIES)
+if [[ ! -e $DATABASE_PROPERTIES ]]; then
+    echo connectionProperties.user=postgres > $DATABASE_PROPERTIES
+    echo "connectionUrl=jdbc\\:postgresql\\://${TEAMCITY_POSTGRESQL_PORT_5432_TCP_ADDR}/" >> $DATABASE_PROPERTIES
+fi
+
+/TeamCity/bin/teamcity-server.sh run
