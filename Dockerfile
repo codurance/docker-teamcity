@@ -1,3 +1,6 @@
+# docker run --name=teamcity-postgres -e POSTGRES_USER=teamcity -P postgres
+# docker run --name=teamcity --link teamcity-postgres:postgresql -p 8111:8111 teamcity
+
 FROM java:8
 EXPOSE 8111
 
