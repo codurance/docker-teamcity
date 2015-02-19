@@ -1,0 +1,24 @@
+data:
+  image: java:8
+  volumes:
+    - /root/.BuildServer
+  command: true
+
+server:
+  build: ./server
+  ports:
+    - 8111:8111
+  volumes_from:
+    - data
+  privileged: true
+
+agent:
+  build: ./agent
+  links:
+    - server
+  volumes:
+    - /var/run/docker.sock:/run/docker.sock
+    - /usr/local/bin/docker:/bin/docker
+  volumes_from:
+    - data
+  privileged: true
