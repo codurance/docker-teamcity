@@ -2,23 +2,28 @@ data:
   image: java:8
   volumes:
     - /root/.BuildServer
+    - /TeamCity/logs
   command: true
 
 server:
-  build: ./server
+  build: .
+  expose:
+    - 8111
   ports:
     - 8111:8111
   volumes_from:
     - data
   privileged: true
+  command: ./start_server
 
 agent:
-  build: ./agent
+  build: .
   links:
     - server
+  volumes_from:
+    - data
   volumes:
     - /var/run/docker.sock:/run/docker.sock
     - /usr/local/bin/docker:/bin/docker
-  volumes_from:
-    - data
   privileged: true
+  command: ./start_agent

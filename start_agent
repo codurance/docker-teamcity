@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo >&2 'Waiting for TeamCity server to start...'
+server_status=500
+while [[ "$server_status" -ge 500 ]]; do
+    server_status="$(curl --silent --output /dev/null --write-out '%{http_code}' 'http://server:8111/httpAuth/app/rest')"
+    sleep 10
+done
+echo >&2 'TeamCity server is up.'
+
+cd /TeamCity/buildAgent
+echo 'serverUrl=server:8111' > conf/buildAgent.properties
+
+cd bin
+./agent.sh run
