@@ -2,16 +2,54 @@
 
 set -e
 
-echo >&2 'Waiting for TeamCity server to start...'
-server_status=500
-while [[ "$server_status" -ge 500 ]]; do
-    server_status="$(curl --silent --output /dev/null --write-out '%{http_code}' 'http://server:8111/httpAuth/app/rest')"
-    sleep 10
-done
-echo >&2 'TeamCity server is up.'
+function log {
+    echo >&2 "$@"
+}
+
+function wait_until {
+    while ! "$@"; do
+        sleep 5
+    done
+}
+
+function server_is_up {
+    [[ "$(curl --silent --output /dev/null --write-out '%{http_code}' 'http://server:8111/httpAuth/app/rest')" -lt 500 ]]
+}
+
+function agent_is_registered {
+    [[ -e logs/output.log ]] && fgrep 'Registered:' logs/output.log
+}
+
+log 'Waiting for TeamCity server to start...'
+wait_until server_is_up
+log 'TeamCity server is up.'
+
+authentication_token="$(grep 'Super user authentication token' /TeamCity/logs/* | sed -r 's/.*Super user authentication token: "(.+?)".*/\1/' | tail -1)"
+if [[ -z "$authentication_token" ]]; then
+    log 'Could not find the TeamCity authorization token. Please authorize this agent manually.'
+fi
+log "Using the authentication token \"$authentication_token\"."
 
 cd /TeamCity/buildAgent
 echo 'serverUrl=server:8111' > conf/buildAgent.properties
 
-cd bin
-./agent.sh run
+./bin/agent.sh run & # Run the agent in the background.
+
+log 'Waiting for agent to register...'
+wait_until agent_is_registered
+agent_id="$(fgrep 'Registered:' logs/output.log | sed -r 's/.*Registered: (id:[0-9]+).*/\1/' | tail -1)"
+log "Agent has registered as $agent_id."
+
+log 'Attempting to authenticate agent...'
+wait_until curl \
+    --fail \
+    --silent \
+    --basic --user ":$authentication_token" \
+    --request 'PUT' \
+    --header 'Content-Type: text/plain' \
+    "http://server:8111/httpAuth/app/rest/agents/$agent_id/authorized" \
+    --data 'true' \
+    >/dev/null
+log 'Successfully authenticated agent.'
+
+wait # Bring the agent back into the foreground so this script does not terminate.
