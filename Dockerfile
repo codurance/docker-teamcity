@@ -9,3 +9,5 @@ RUN chmod +x start_server
 
 COPY start_agent start_agent
 RUN chmod +x start_agent
+
+RUN (cd /lib/x86_64-linux-gnu && ln -s libdevmapper.so.1.02.1 libdevmapper.so.1.02)
