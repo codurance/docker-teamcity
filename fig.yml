@@ -1,12 +1,12 @@
 data:
-  image: java:8
+  build: data
   volumes:
     - /root/.BuildServer
     - /TeamCity/logs
   command: true
 
 server:
-  build: .
+  build: service
   expose:
     - 8111
   ports:
@@ -17,7 +17,7 @@ server:
   command: ./start_server
 
 agent:
-  build: .
+  build: service
   links:
     - server
   volumes_from:
