@@ -7,7 +7,7 @@ EXPOSE 8111
 RUN (curl --fail -L "https://github.com/docker/fig/releases/download/1.0.1/fig-$(uname -s)-$(uname -m)" > /usr/local/bin/fig) && chmod +x /usr/local/bin/fig
 
 # TeamCity. Obviously.
-RUN curl --fail -L https://download.jetbrains.com/teamcity/TeamCity-9.0.3.tar.gz -o TeamCity.tar.gz
+RUN curl --fail -L https://download.jetbrains.com/teamcity/TeamCity-9.0.3.tar.gz > TeamCity.tar.gz
 RUN tar xf TeamCity.tar.gz
 
 # This script is used to start the TeamCity server, and should be run as the entry point by a Dockerfile that extends this one.
