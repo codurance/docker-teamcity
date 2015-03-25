@@ -4,10 +4,10 @@ FROM java:8
 EXPOSE 8111
 
 # This installs fig 1.0.1, which is needed for continuous deployment.
-RUN (curl -L "https://github.com/docker/fig/releases/download/1.0.1/fig-$(uname -s)-$(uname -m)" > /usr/local/bin/fig) && chmod +x /usr/local/bin/fig --fail
+RUN (curl --fail -L "https://github.com/docker/fig/releases/download/1.0.1/fig-$(uname -s)-$(uname -m)" > /usr/local/bin/fig) && chmod +x /usr/local/bin/fig
 
 # TeamCity. Obviously.
-RUN curl -L https://download.jetbrains.com/teamcity/TeamCity-9.0.3.tar.gz -o TeamCity.tar.gz --fail
+RUN curl --fail -L https://download.jetbrains.com/teamcity/TeamCity-9.0.3.tar.gz -o TeamCity.tar.gz
 RUN tar xf TeamCity.tar.gz
 
 # This script is used to start the TeamCity server, and should be run as the entry point by a Dockerfile that extends this one.
