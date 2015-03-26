@@ -7,10 +7,8 @@ data:
 
 server:
   build: service
-  expose:
-    - 8111
   ports:
-    - 8111:8111
+    - "8111:8111"
   volumes_from:
     - data
   privileged: true
